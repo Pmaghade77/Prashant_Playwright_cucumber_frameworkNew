@@ -50,15 +50,19 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      
       - name: Generate Allure HTML report
         if: always()
         run: |
-          if [ -d "allure-results" ] && [ "$(find allure-results -name '*-result.json' -type f | wc -l)" -gt 0 ]; then
+          mkdir -p allure-results
+          if find allure-results -name '*-result.json' -type f | grep -q .; then
             npx allure generate allure-results --output allure-report --clean
           else
-            echo "No Allure test result JSON files were generated."
-            exit 0
+            echo "No Allure test results found; creating a placeholder report."
+            mkdir -p allure-report
+            echo '<html><body><h1>Allure report unavailable</h1><p>No test results were generated. Check the Cucumber debug report.</p></body></html>' > allure-report/index.html
           fi
+
 
       - name: Upload Allure report
         if: always()
