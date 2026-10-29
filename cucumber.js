@@ -1,14 +1,22 @@
+
 module.exports = {
-default: {
-paths: ['src/features/**/*.feature'],
-require: [
-  'src/step-definitions/**/*.ts',
-  'src/Support/**/*.ts'
-],
+  default: {
+    paths: ['src/features/**/*.feature'],
 
-requireModule: ['ts-node/register'],
+    require: [
+      'src/step-definitions/**/*.ts',
+      'src/Support/**/*.ts'
+    ],
 
-format: ['progress']
+    requireModule: ['ts-node/register'],
 
-}
+    format: [
+      'progress',
+      'allure-cucumberjs/reporter'
+    ],
+
+    formatOptions: {
+      resultsDir: 'allure-results'
+    }
+  }
 };
