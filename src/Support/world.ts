@@ -14,7 +14,7 @@ export class CustomWorld extends World
 
 Before (async function (this:CustomWorld) {
     const name = (process.env.BROWSER || 'chromium') as 'chromium' | 'firefox' | 'webkit';
-    this.browser = await { chromium, firefox, webkit }[name].launch({ headless: false });
+    this.browser = await { chromium, firefox, webkit }[name].launch({ headless: true });
     this.context = await this.browser.newContext();
     this.page = await this.context.newPage();
 })
