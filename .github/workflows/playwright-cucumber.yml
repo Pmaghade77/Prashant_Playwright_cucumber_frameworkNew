@@ -35,6 +35,9 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Prepare Allure results directory
+        run: mkdir -p allure-results
+
       - name: Run Cucumber tests
         run: npx cucumber-js --format progress --format json:cucumber-debug.json
 
@@ -45,10 +48,17 @@ jobs:
           name: cucumber-debug-report
           path: cucumber-debug.json
           if-no-files-found: ignore
+          retention-days: 14
 
       - name: Generate Allure HTML report
         if: always()
-        run: npx allure generate allure-results --output allure-report --clean
+        run: |
+          if [ -d "allure-results" ] && [ "$(find allure-results -name '*-result.json' -type f | wc -l)" -gt 0 ]; then
+            npx allure generate allure-results --output allure-report --clean
+          else
+            echo "No Allure test result JSON files were generated."
+            exit 0
+          fi
 
       - name: Upload Allure report
         if: always()
@@ -56,6 +66,7 @@ jobs:
         with:
           name: allure-html-report
           path: allure-report/
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Upload Allure raw results
@@ -64,20 +75,21 @@ jobs:
         with:
           name: allure-raw-results
           path: allure-results/
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Configure GitHub Pages
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v5
 
       - name: Upload GitHub Pages artifact
-        if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v4
         with:
           path: allure-report/
 
       - name: Deploy Allure report to GitHub Pages
-        if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         id: deployment
         uses: actions/deploy-pages@v4
 
