@@ -36,7 +36,15 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Cucumber tests
-        run: npx cucumber-js
+        run: npx cucumber-js --format progress --format json:cucumber-debug.json
+
+      - name: Upload Cucumber debug report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-debug-report
+          path: cucumber-debug.json
+          if-no-files-found: ignore
 
       - name: Generate Allure HTML report
         if: always()
