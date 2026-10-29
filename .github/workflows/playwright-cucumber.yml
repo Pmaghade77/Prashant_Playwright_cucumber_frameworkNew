@@ -41,6 +41,14 @@ jobs:
       - name: Run Cucumber tests
         run: npx cucumber-js --format progress --format json:cucumber-debug.json
 
+      - name: Inspect Allure results
+        if: always()
+        run: |
+          echo "Allure results directory:"
+          ls -la allure-results || true
+          echo "Result JSON files:"
+          find allure-results -maxdepth 1 -name '*-result.json' -type f || true
+
       - name: Upload Cucumber debug report
         if: always()
         uses: actions/upload-artifact@v4
